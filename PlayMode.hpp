@@ -2,6 +2,7 @@
 
 #include "Scene.hpp"
 #include "Sound.hpp"
+#include "Choice.hpp"
 
 #include <glm/glm.hpp>
 
