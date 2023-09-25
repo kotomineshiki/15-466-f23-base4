@@ -4,10 +4,21 @@
 #include<vector>
 struct Choice
 {
+    Choice(std::string input);
     struct choiceData{
         std::string context;
         int choiceNext;
         int choiceEffect;
+        choiceData(){
+            context="";
+            choiceNext=0;
+            choiceEffect=0;
+        }
+        choiceData(std::string inputstring, int input1,int input2){
+            context=inputstring;
+            choiceNext=input1;
+            choiceEffect=input2;
+        }
     };
 
     int EventID;
