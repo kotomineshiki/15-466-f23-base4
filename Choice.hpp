@@ -32,8 +32,8 @@ struct Choice
     void TestChoice();
 };
 struct ChoiceTable{
-    std::vector<Choice> choiceLibrary;
+    std::vector<Choice*> choiceLibrary;
     Choice GetChoice(int id);
-    void AddChoice(Choice input);
+    Choice AddChoice(Choice* input);
     void ReadCSVFile(std::string dataPath);
 };

@@ -35,19 +35,6 @@ void Choice::TestChoice(){
     std::cout<<"EEEEEEE"<<std::endl;
 }
 
-void ChoiceTable::AddChoice(Choice input){
-    choiceLibrary.push_back(input);
-}
-Choice ChoiceTable::GetChoice(int id){
-    if(id<choiceLibrary.size()){
-        return choiceLibrary[id];
-    }else{
-        std::cout<<"Warning!"<<std::endl;
-        return nullptr;
-    }
-
-}
-
 void ChoiceTable::ReadCSVFile(std::string dataPath){
     std::ifstream input;
     input.open(dataPath,std::ios::in);
@@ -60,8 +47,7 @@ void ChoiceTable::ReadCSVFile(std::string dataPath){
     std::getline(input,choiceString);//abandan first string because they are Header
     while(std::getline(input,choiceString)){
         std::cout<<choiceString<<std::endl;
-        Choice choice(choiceString);
-        AddChoice(choice);
+        Choice Choice(choiceString);
 
     }
     input.close();
