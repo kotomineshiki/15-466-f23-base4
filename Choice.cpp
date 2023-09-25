@@ -39,12 +39,16 @@ void ChoiceTable::AddChoice(Choice input){
     choiceLibrary.push_back(input);
 }
 Choice ChoiceTable::GetChoice(int id){
-    if(id<choiceLibrary.size()){
-        return choiceLibrary[id];
-    }else{
+    for (auto i:choiceLibrary)
+    {
+        /* code */
+        if(i.EventID==id){
+            return i;
+        }
+    }
+
         std::cout<<"Warning!"<<std::endl;
         return nullptr;
-    }
 
 }
 
