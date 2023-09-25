@@ -132,8 +132,8 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 }
 
 void PlayMode::update(float elapsed) {
-	Choice t;
-	t.TestChoice();
+//	Choice t;
+//	t.TestChoice();
 	//slowly rotates through [0,1):
 	wobble += elapsed / 10.0f;
 	wobble -= std::floor(wobble);
