@@ -191,7 +191,7 @@ void PlayMode::show_dialogue()
 				if (choices.GetChoice(line_index).baseChoice.choiceNext > 0)
 				{
 					space_downcount++;
-					std::cout << "next is:" << choices.GetChoice(line_index).baseChoice.choiceNext << std::endl;
+					// std::cout << "next is:" << choices.GetChoice(line_index).baseChoice.choiceNext << std::endl;
 					line_index = choices.GetChoice(line_index).baseChoice.choiceNext;
 
 					showtext = true;
@@ -203,58 +203,37 @@ void PlayMode::show_dialogue()
 			}
 		}
 
-		if (choice1.pressed && choice1_downcount == 0)
+		if (choices.GetChoice(line_index).type == 2)
 		{
-			if (choices.GetChoice(line_index).type == 2)
+			int choiceNum = -1;
+			if (choice1.pressed && choice1_downcount == 0)
 			{
 				choice1_downcount++;
-				if (choices.GetChoice(line_index).potentialChoice[0].choiceNext > 0)
-				{
-					line_index = choices.GetChoice(line_index).potentialChoice[0].choiceNext;
-					std::cout << "choose1!!" << std::endl;
-					showtext = true;
-				}
-				else
-				{
-					std::cout << "no choose2!!" << std::endl;
-				}
+				choiceNum = 0;
 			}
-		}
-		if (choice2.pressed && choice2_downcount == 0)
-		{
-			if (choices.GetChoice(line_index).type == 2)
+			if (choice2.pressed && choice2_downcount == 0)
 			{
 				choice2_downcount++;
-				if (choices.GetChoice(line_index).potentialChoice[1].choiceNext > 0)
+				choiceNum = 1;
+			}
+
+			if (choice3.pressed && choice3_downcount == 0)
+			{
+				choice3_downcount++;
+				choiceNum = 2;
+			}
+
+			// show next line
+			if (choiceNum >= 0)
+			{
+				if (choices.GetChoice(line_index).potentialChoice[choiceNum].choiceNext > 0)
 				{
-					line_index = choices.GetChoice(line_index).potentialChoice[1].choiceNext;
-					std::cout << "choose2!!" << std::endl;
+					line_index = choices.GetChoice(line_index).potentialChoice[choiceNum].choiceNext;
 					showtext = true;
 				}
 				else
 				{
-					std::cout << "no choose2!!" << std::endl;
-				}
-			}
-		}
-
-		if (choice3.pressed && choice3_downcount == 0)
-		{
-			{
-				if (choices.GetChoice(line_index).type == 2)
-				{
-					choice3_downcount++;
-					if (choices.GetChoice(line_index).potentialChoice[2].choiceNext > 0)
-					{
-
-						line_index = choices.GetChoice(line_index).potentialChoice[2].choiceNext;
-
-						showtext = true;
-					}
-					else
-					{
-						std::cout << "no choose3!!" << std::endl;
-					}
+					std::cout << "no choose content!!" << std::endl;
 				}
 			}
 		}

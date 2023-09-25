@@ -35,7 +35,7 @@ struct PlayMode : Mode
 	Scene scene;
 
 	bool showtext = true;
-	int line_index = 0;
+	int line_index = 1;
 	bool choosed = false;
 
 	int space_downcount = 0;
@@ -47,7 +47,7 @@ struct PlayMode : Mode
 
 	ChoiceTable choices;
 
-	int next_index = 0;
+	int next_index = 1;
 	// camera:
 	Scene::Camera *camera = nullptr;
 
