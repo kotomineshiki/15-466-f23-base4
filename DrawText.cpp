@@ -1,5 +1,6 @@
 #include "DrawText.hpp"
 
+//Inspired by https://learnopengl.com/In-Practice/Text-Rendering
 void DrawText::HB_FT_Init(const char *filename, int size)
 {
     glEnable(GL_BLEND);
