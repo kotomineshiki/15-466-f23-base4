@@ -1,6 +1,6 @@
 ﻿event id,type,choice count,context,context next,context effect,choice1,choice 1 next,choice1 effect,choice 2,choice 2 next,choice 2 effect
 1,1,0,first sentence,2,0,,,,,,
-2,2,2,second sentence,,0,choice1,3,0,choice2,4,0
+2,2,2,second sentence,,0,choice1,3,,choice2,4,
 3,1,0,third sentence,5,0,,,,,,
 4,1,0,third sentence,5,,,,,,,
 5,1,0,merged sentence,,,,,,,,
