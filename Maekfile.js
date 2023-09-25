@@ -136,7 +136,8 @@ const game_names = [
 	maek.CPP('Sound.cpp'),
 	maek.CPP('load_wav.cpp'),
 	maek.CPP('load_opus.cpp'),
-	maek.CPP('Choice.cpp')
+	maek.CPP('Choice.cpp'),
+	maek.CPP('DrawText.cpp')
 ];
 
 const common_names = [

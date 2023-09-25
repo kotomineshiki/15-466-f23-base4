@@ -3,6 +3,7 @@
 #include "Scene.hpp"
 #include "Sound.hpp"
 #include "Choice.hpp"
+#include "DrawText.hpp"
 
 #include <glm/glm.hpp>
 
@@ -46,4 +47,7 @@ struct PlayMode : Mode {
 	//camera:
 	Scene::Camera *camera = nullptr;
 
+	//text
+	DrawText text;
+	GLuint text_program;
 };

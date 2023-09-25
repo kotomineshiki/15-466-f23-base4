@@ -64,6 +64,10 @@ PlayMode::PlayMode() : scene(*hexapod_scene) {
 	//start music loop playing:
 	// (note: position will be over-ridden in update())
 	leg_tip_loop = Sound::loop_3D(*dusty_floor_sample, 1.0f, get_leg_tip_position(), 10.0f);
+
+	//Initialize draw text
+	text.HB_FT_Init(data_path("PressStart2P-Regular.ttf").c_str(), 75);
+	text_program = text.CreateTextShader();
 }
 
 PlayMode::~PlayMode() {
@@ -209,27 +213,12 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 
 	scene.draw(*camera);
 
-	{ //use DrawLines to overlay some text:
-		glDisable(GL_DEPTH_TEST);
-		float aspect = float(drawable_size.x) / float(drawable_size.y);
-		DrawLines lines(glm::mat4(
-			1.0f / aspect, 0.0f, 0.0f, 0.0f,
-			0.0f, 1.0f, 0.0f, 0.0f,
-			0.0f, 0.0f, 1.0f, 0.0f,
-			0.0f, 0.0f, 0.0f, 1.0f
-		));
-
-		constexpr float H = 0.09f;
-		lines.draw_text("Mouse motion rotates camera; WASD moves; escape ungrabs mouse",
-			glm::vec3(-aspect + 0.1f * H, -1.0 + 0.1f * H, 0.0),
-			glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
-			glm::u8vec4(0x00, 0x00, 0x00, 0x00));
-		float ofs = 2.0f / drawable_size.y;
-		lines.draw_text("Mouse motion rotates camera; WASD moves; escape ungrabs mouse",
-			glm::vec3(-aspect + 0.1f * H + ofs, -1.0 + + 0.1f * H + ofs, 0.0),
-			glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
-			glm::u8vec4(0xff, 0xff, 0xff, 0x00));
+	{
+		text.Draw(text_program, "Fuck U 15666!", 180.0f, 320.0f, drawable_size, glm::vec3(1.0f, 0.0f, 0.0f));
+		text.Draw(text_program, "Fuck U 15666!", 180.0f, 480.0f, drawable_size, glm::vec3(1.0f, 1.0f, 0.0f));
+		text.Draw(text_program, "Fuck U 15666!", 180.0f, 160.0f, drawable_size, glm::vec3(0.0f, 0.0f, 1.0f));
 	}
+
 	GL_ERRORS();
 }
 
