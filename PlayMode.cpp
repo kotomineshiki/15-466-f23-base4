@@ -13,201 +13,137 @@
 #include <random>
 
 GLuint hexapod_meshes_for_lit_color_texture_program = 0;
-Load< MeshBuffer > hexapod_meshes(LoadTagDefault, []() -> MeshBuffer const * {
+Load<MeshBuffer> hexapod_meshes(LoadTagDefault, []() -> MeshBuffer const *
+								{
 	MeshBuffer const *ret = new MeshBuffer(data_path("hexapod.pnct"));
 	hexapod_meshes_for_lit_color_texture_program = ret->make_vao_for_program(lit_color_texture_program->program);
-	return ret;
-});
+	return ret; });
 
-Load< Scene > hexapod_scene(LoadTagDefault, []() -> Scene const * {
-	return new Scene(data_path("hexapod.scene"), [&](Scene &scene, Scene::Transform *transform, std::string const &mesh_name){
-		Mesh const &mesh = hexapod_meshes->lookup(mesh_name);
+Load<Scene> hexapod_scene(LoadTagDefault, []() -> Scene const *
+						  { return new Scene(data_path("hexapod.scene"), [&](Scene &scene, Scene::Transform *transform, std::string const &mesh_name)
+											 {
+												 Mesh const &mesh = hexapod_meshes->lookup(mesh_name);
 
-		scene.drawables.emplace_back(transform);
-		Scene::Drawable &drawable = scene.drawables.back();
+												 scene.drawables.emplace_back(transform);
+												 Scene::Drawable &drawable = scene.drawables.back();
 
-		drawable.pipeline = lit_color_texture_program_pipeline;
+												 drawable.pipeline = lit_color_texture_program_pipeline;
 
-		drawable.pipeline.vao = hexapod_meshes_for_lit_color_texture_program;
-		drawable.pipeline.type = mesh.type;
-		drawable.pipeline.start = mesh.start;
-		drawable.pipeline.count = mesh.count;
+												 drawable.pipeline.vao = hexapod_meshes_for_lit_color_texture_program;
+												 drawable.pipeline.type = mesh.type;
+												 drawable.pipeline.start = mesh.start;
+												 drawable.pipeline.count = mesh.count; }); });
 
-	});
-});
+Load<Sound::Sample> dusty_floor_sample(LoadTagDefault, []() -> Sound::Sample const *
+									   { return new Sound::Sample(data_path("dusty-floor.opus")); });
 
-Load< Sound::Sample > dusty_floor_sample(LoadTagDefault, []() -> Sound::Sample const * {
-	return new Sound::Sample(data_path("dusty-floor.opus"));
-});
-
-PlayMode::PlayMode() : scene(*hexapod_scene) {
-	//get pointers to leg for convenience:
-	for (auto &transform : scene.transforms) {
-		if (transform.name == "Hip.FL") hip = &transform;
-		else if (transform.name == "UpperLeg.FL") upper_leg = &transform;
-		else if (transform.name == "LowerLeg.FL") lower_leg = &transform;
-	}
-	if (hip == nullptr) throw std::runtime_error("Hip not found.");
-	if (upper_leg == nullptr) throw std::runtime_error("Upper leg not found.");
-	if (lower_leg == nullptr) throw std::runtime_error("Lower leg not found.");
-
-	hip_base_rotation = hip->rotation;
-	upper_leg_base_rotation = upper_leg->rotation;
-	lower_leg_base_rotation = lower_leg->rotation;
-
-	//get pointer to camera for convenience:
-	if (scene.cameras.size() != 1) throw std::runtime_error("Expecting scene to have exactly one camera, but it has " + std::to_string(scene.cameras.size()));
-	camera = &scene.cameras.front();
-
-	//start music loop playing:
-	// (note: position will be over-ridden in update())
-	leg_tip_loop = Sound::loop_3D(*dusty_floor_sample, 1.0f, get_leg_tip_position(), 10.0f);
-
-	//Initialize draw text
+PlayMode::PlayMode() : scene(*hexapod_scene)
+{
+	// Choice t;
+	// t.TestChoice();
+	choices.ReadCSVFile(data_path("ChoiceData.csv"));
+	// Initialize draw text
 	text.HB_FT_Init(data_path("PressStart2P-Regular.ttf").c_str(), 75);
 	text_program = text.CreateTextShader();
+
+	// get pointer to camera for convenience:
+	if (scene.cameras.size() != 1)
+		throw std::runtime_error("Expecting scene to have exactly one camera, but it has " + std::to_string(scene.cameras.size()));
+	camera = &scene.cameras.front();
 }
 
-PlayMode::~PlayMode() {
+PlayMode::~PlayMode()
+{
 }
 
-bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size) {
+bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
+{
 
-	if (evt.type == SDL_KEYDOWN) {
-		if (evt.key.keysym.sym == SDLK_ESCAPE) {
-			SDL_SetRelativeMouseMode(SDL_FALSE);
-			return true;
-		} else if (evt.key.keysym.sym == SDLK_a) {
-			left.downs += 1;
-			left.pressed = true;
-			return true;
-		} else if (evt.key.keysym.sym == SDLK_d) {
-			right.downs += 1;
-			right.pressed = true;
-			return true;
-		} else if (evt.key.keysym.sym == SDLK_w) {
-			up.downs += 1;
-			up.pressed = true;
-			return true;
-		} else if (evt.key.keysym.sym == SDLK_s) {
-			down.downs += 1;
-			down.pressed = true;
+	if (evt.type == SDL_KEYDOWN)
+	{
+		if (evt.key.keysym.sym == SDLK_SPACE)
+		{
+
+			space.downs += 1;
+			space.pressed = true;
 			return true;
 		}
-	} else if (evt.type == SDL_KEYUP) {
-		if (evt.key.keysym.sym == SDLK_a) {
-			left.pressed = false;
-			return true;
-		} else if (evt.key.keysym.sym == SDLK_d) {
-			right.pressed = false;
-			return true;
-		} else if (evt.key.keysym.sym == SDLK_w) {
-			up.pressed = false;
-			return true;
-		} else if (evt.key.keysym.sym == SDLK_s) {
-			down.pressed = false;
+		else if (evt.key.keysym.sym == SDLK_1)
+		{
+			choice1.downs += 1;
+			choice1.pressed = true;
 			return true;
 		}
-	} else if (evt.type == SDL_MOUSEBUTTONDOWN) {
-		if (SDL_GetRelativeMouseMode() == SDL_FALSE) {
-			SDL_SetRelativeMouseMode(SDL_TRUE);
+		else if (evt.key.keysym.sym == SDLK_2)
+		{
+
+			choice2.downs += 1;
+			choice2.pressed = true;
 			return true;
 		}
-	} else if (evt.type == SDL_MOUSEMOTION) {
-		if (SDL_GetRelativeMouseMode() == SDL_TRUE) {
-			glm::vec2 motion = glm::vec2(
-				evt.motion.xrel / float(window_size.y),
-				-evt.motion.yrel / float(window_size.y)
-			);
-			camera->transform->rotation = glm::normalize(
-				camera->transform->rotation
-				* glm::angleAxis(-motion.x * camera->fovy, glm::vec3(0.0f, 1.0f, 0.0f))
-				* glm::angleAxis(motion.y * camera->fovy, glm::vec3(1.0f, 0.0f, 0.0f))
-			);
+		else if (evt.key.keysym.sym == SDLK_3)
+		{
+
+			choice3.downs += 1;
+			choice3.pressed = true;
 			return true;
 		}
 	}
-
+	else if (evt.type == SDL_KEYUP)
+	{
+		if (evt.key.keysym.sym == SDLK_SPACE)
+		{
+			space.pressed = false;
+			space.downs = 0;
+			return true;
+		}
+		else if (evt.key.keysym.sym == SDLK_1)
+		{
+			choice1.pressed = false;
+			choice1.downs = 0;
+			return true;
+		}
+		else if (evt.key.keysym.sym == SDLK_2)
+		{
+			choice2.pressed = false;
+			choice2.downs = 0;
+			return true;
+		}
+		else if (evt.key.keysym.sym == SDLK_3)
+		{
+			choice3.pressed = false;
+			choice3.downs = 0;
+			return true;
+		}
+	}
 	return false;
 }
 
-void PlayMode::update(float elapsed) {
-//	Choice t;
-//	t.TestChoice();
-	//slowly rotates through [0,1):
-	wobble += elapsed / 10.0f;
-	wobble -= std::floor(wobble);
-
-	hip->rotation = hip_base_rotation * glm::angleAxis(
-		glm::radians(5.0f * std::sin(wobble * 2.0f * float(M_PI))),
-		glm::vec3(0.0f, 1.0f, 0.0f)
-	);
-	upper_leg->rotation = upper_leg_base_rotation * glm::angleAxis(
-		glm::radians(7.0f * std::sin(wobble * 2.0f * 2.0f * float(M_PI))),
-		glm::vec3(0.0f, 0.0f, 1.0f)
-	);
-	lower_leg->rotation = lower_leg_base_rotation * glm::angleAxis(
-		glm::radians(10.0f * std::sin(wobble * 3.0f * 2.0f * float(M_PI))),
-		glm::vec3(0.0f, 0.0f, 1.0f)
-	);
-
-	//move sound to follow leg tip position:
-	leg_tip_loop->set_position(get_leg_tip_position(), 1.0f / 60.0f);
-
-	//move camera:
-	{
-
-		//combine inputs into a move:
-		constexpr float PlayerSpeed = 30.0f;
-		glm::vec2 move = glm::vec2(0.0f);
-		if (left.pressed && !right.pressed) move.x =-1.0f;
-		if (!left.pressed && right.pressed) move.x = 1.0f;
-		if (down.pressed && !up.pressed) move.y =-1.0f;
-		if (!down.pressed && up.pressed) move.y = 1.0f;
-
-		//make it so that moving diagonally doesn't go faster:
-		if (move != glm::vec2(0.0f)) move = glm::normalize(move) * PlayerSpeed * elapsed;
-
-		glm::mat4x3 frame = camera->transform->make_local_to_parent();
-		glm::vec3 frame_right = frame[0];
-		//glm::vec3 up = frame[1];
-		glm::vec3 frame_forward = -frame[2];
-
-		camera->transform->position += move.x * frame_right + move.y * frame_forward;
-	}
-
-	{ //update listener to camera position:
-		glm::mat4x3 frame = camera->transform->make_local_to_parent();
-		glm::vec3 frame_right = frame[0];
-		glm::vec3 frame_at = frame[3];
-		Sound::listener.set_position_right(frame_at, frame_right, 1.0f / 60.0f);
-	}
-
-	//reset button press counters:
-	left.downs = 0;
-	right.downs = 0;
-	up.downs = 0;
-	down.downs = 0;
+void PlayMode::update(float elapsed)
+{
+	// show dialogue
+	show_dialogue();
 }
 
-void PlayMode::draw(glm::uvec2 const &drawable_size) {
-	//update camera aspect ratio for drawable:
+void PlayMode::draw(glm::uvec2 const &drawable_size)
+{
+	// update camera aspect ratio for drawable:
 	camera->aspect = float(drawable_size.x) / float(drawable_size.y);
 
-	//set up light type and position for lit_color_texture_program:
-	// TODO: consider using the Light(s) in the scene to do this
+	// set up light type and position for lit_color_texture_program:
+	//  TODO: consider using the Light(s) in the scene to do this
 	glUseProgram(lit_color_texture_program->program);
 	glUniform1i(lit_color_texture_program->LIGHT_TYPE_int, 1);
-	glUniform3fv(lit_color_texture_program->LIGHT_DIRECTION_vec3, 1, glm::value_ptr(glm::vec3(0.0f, 0.0f,-1.0f)));
+	glUniform3fv(lit_color_texture_program->LIGHT_DIRECTION_vec3, 1, glm::value_ptr(glm::vec3(0.0f, 0.0f, -1.0f)));
 	glUniform3fv(lit_color_texture_program->LIGHT_ENERGY_vec3, 1, glm::value_ptr(glm::vec3(1.0f, 1.0f, 0.95f)));
 	glUseProgram(0);
 
 	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
-	glClearDepth(1.0f); //1.0 is actually the default value to clear the depth buffer to, but FYI you can change it.
+	glClearDepth(1.0f); // 1.0 is actually the default value to clear the depth buffer to, but FYI you can change it.
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS); //this is the default depth comparison function, but FYI you can change it.
+	glDepthFunc(GL_LESS); // this is the default depth comparison function, but FYI you can change it.
 
 	scene.draw(*camera);
 
@@ -219,8 +155,119 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 
 	GL_ERRORS();
 }
+void PlayMode::show_dialogue()
+{
+	if (line_index <= choices.choiceLibrary.size() && line_index >= 0)
+	{
+		// wait until player input, then show next text
+		if (showtext)
+		{
+			//  type:1-single line
+			std::cout << choices.GetChoice(line_index).baseChoice.context << std::endl;
 
-glm::vec3 PlayMode::get_leg_tip_position() {
-	//the vertex position here was read from the model in blender:
-	return lower_leg->make_local_to_world() * glm::vec4(-1.26137f, -11.861f, 0.0f, 1.0f);
+			// 1-choose
+			if (choices.GetChoice(line_index).type == 2)
+			{
+				// show all choice
+				for (int i = 0; i < choices.GetChoice(line_index).choiceCount; i++)
+				{
+					if (choices.GetChoice(line_index).choiceCount > i)
+						std::cout << std::to_string(i + 1) << ": " << choices.GetChoice(line_index).potentialChoice[i].context << std::endl;
+				}
+			}
+			// reset player input
+			showtext = false;
+			space_downcount = 0;
+			choice1_downcount = 0;
+			choice2_downcount = 0;
+			choice3_downcount = 0;
+		}
+
+		// detect player input
+		if (space.pressed && space_downcount == 0)
+		{
+			if (choices.GetChoice(line_index).type == 1)
+			{
+				if (choices.GetChoice(line_index).baseChoice.choiceNext > 0)
+				{
+					space_downcount++;
+					std::cout << "next is:" << choices.GetChoice(line_index).baseChoice.choiceNext << std::endl;
+					line_index = choices.GetChoice(line_index).baseChoice.choiceNext;
+
+					showtext = true;
+				}
+				else
+				{
+					std::cout << "no next line!!" << std::endl;
+				}
+			}
+		}
+
+		if (choice1.pressed && choice1_downcount == 0)
+		{
+			if (choices.GetChoice(line_index).type == 2)
+			{
+				choice1_downcount++;
+				if (choices.GetChoice(line_index).potentialChoice[0].choiceNext > 0)
+				{
+					line_index = choices.GetChoice(line_index).potentialChoice[0].choiceNext;
+					std::cout << "choose1!!" << std::endl;
+					showtext = true;
+				}
+				else
+				{
+					std::cout << "no choose2!!" << std::endl;
+				}
+			}
+		}
+		if (choice2.pressed && choice2_downcount == 0)
+		{
+			if (choices.GetChoice(line_index).type == 2)
+			{
+				choice2_downcount++;
+				if (choices.GetChoice(line_index).potentialChoice[1].choiceNext > 0)
+				{
+					line_index = choices.GetChoice(line_index).potentialChoice[1].choiceNext;
+					std::cout << "choose2!!" << std::endl;
+					showtext = true;
+				}
+				else
+				{
+					std::cout << "no choose2!!" << std::endl;
+				}
+			}
+		}
+
+		if (choice3.pressed && choice3_downcount == 0)
+		{
+			{
+				if (choices.GetChoice(line_index).type == 2)
+				{
+					choice3_downcount++;
+					if (choices.GetChoice(line_index).potentialChoice[2].choiceNext > 0)
+					{
+
+						line_index = choices.GetChoice(line_index).potentialChoice[2].choiceNext;
+
+						showtext = true;
+					}
+					else
+					{
+						std::cout << "no choose3!!" << std::endl;
+					}
+				}
+			}
+		}
+	}
+}
+
+void PlayMode::change_san(int add_value)
+{
+	san += add_value;
+}
+
+int PlayMode::dice(int maxnum)
+{
+	int random = abs((rand() % (maxnum + 1)));
+	return random;
 }
