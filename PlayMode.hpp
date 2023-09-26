@@ -9,6 +9,8 @@
 
 #include <vector>
 #include <deque>
+#include <string>
+#include <array>
 
 struct PlayMode : Mode
 {
@@ -37,6 +39,9 @@ struct PlayMode : Mode
 	bool showtext = true;
 	int line_index = 1;
 	bool choosed = false;
+
+	std::string base_line = "";
+	std::array<std::string, 3> choice_lines;
 
 	int space_downcount = 0;
 	int choice1_downcount = 0;

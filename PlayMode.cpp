@@ -148,9 +148,10 @@ void PlayMode::draw(glm::uvec2 const &drawable_size)
 	scene.draw(*camera);
 
 	{
-		text.Draw(text_program, "Fuck U 15666!", 180.0f, 320.0f, drawable_size, glm::vec3(1.0f, 0.0f, 0.0f));
-		text.Draw(text_program, "Fuck U 15666!", 180.0f, 480.0f, drawable_size, glm::vec3(1.0f, 1.0f, 0.0f));
-		text.Draw(text_program, "Fuck U 15666!", 180.0f, 160.0f, drawable_size, glm::vec3(0.0f, 0.0f, 1.0f));
+		text.Draw(text_program, base_line, 180.0f, 480.0f, drawable_size, glm::vec3(1.0f, 1.0f, 0.0f), 0.8f);
+		text.Draw(text_program, choice_lines[0], 180.0f, 320.0f, drawable_size, glm::vec3(1.0f, 0.0f, 0.0f));
+		text.Draw(text_program, choice_lines[1], 180.0f, 200.0f, drawable_size, glm::vec3(0.0f, 0.0f, 1.0f));
+		text.Draw(text_program, choice_lines[2], 180.0f, 100.0f, drawable_size, glm::vec3(0.0f, 0.0f, 1.0f));
 	}
 
 	GL_ERRORS();
@@ -163,18 +164,34 @@ void PlayMode::show_dialogue()
 		if (showtext)
 		{
 			//  type:1-single line
-			std::cout << choices.GetChoice(line_index).baseChoice.context << std::endl;
 
-			// 1-choose
+			base_line = choices.GetChoice(line_index).baseChoice.context;
+
+			if (choices.GetChoice(line_index).type == 1)
+			{
+				for (auto &line : choice_lines)
+				{
+					line = "";
+				}
+			}
+			// 2-choose
 			if (choices.GetChoice(line_index).type == 2)
 			{
 				// show all choice
-				for (int i = 0; i < choices.GetChoice(line_index).choiceCount; i++)
+				for (int i = 0; i < 3; i++)
 				{
-					if (choices.GetChoice(line_index).choiceCount > i)
-						std::cout << std::to_string(i + 1) << ": " << choices.GetChoice(line_index).potentialChoice[i].context << std::endl;
+					if (i < choices.GetChoice(line_index).choiceCount)
+					{
+						if (choices.GetChoice(line_index).choiceCount > i)
+							choice_lines[i] = choices.GetChoice(line_index).potentialChoice[i].context;
+					}
+					else
+					{
+						choice_lines[i] = "";
+					}
 				}
 			}
+
 			// reset player input
 			showtext = false;
 			space_downcount = 0;
