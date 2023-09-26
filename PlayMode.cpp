@@ -15,12 +15,12 @@
 GLuint hexapod_meshes_for_lit_color_texture_program = 0;
 Load<MeshBuffer> hexapod_meshes(LoadTagDefault, []() -> MeshBuffer const *
 								{
-	MeshBuffer const *ret = new MeshBuffer(data_path("hexapod.pnct"));
+	MeshBuffer const *ret = new MeshBuffer(data_path("void.pnct"));
 	hexapod_meshes_for_lit_color_texture_program = ret->make_vao_for_program(lit_color_texture_program->program);
 	return ret; });
 
 Load<Scene> hexapod_scene(LoadTagDefault, []() -> Scene const *
-						  { return new Scene(data_path("hexapod.scene"), [&](Scene &scene, Scene::Transform *transform, std::string const &mesh_name)
+						  { return new Scene(data_path("void.scene"), [&](Scene &scene, Scene::Transform *transform, std::string const &mesh_name)
 											 {
 												 Mesh const &mesh = hexapod_meshes->lookup(mesh_name);
 
@@ -34,16 +34,13 @@ Load<Scene> hexapod_scene(LoadTagDefault, []() -> Scene const *
 												 drawable.pipeline.start = mesh.start;
 												 drawable.pipeline.count = mesh.count; }); });
 
-Load<Sound::Sample> dusty_floor_sample(LoadTagDefault, []() -> Sound::Sample const *
-									   { return new Sound::Sample(data_path("dusty-floor.opus")); });
-
 PlayMode::PlayMode() : scene(*hexapod_scene)
 {
 	// Choice t;
 	// t.TestChoice();
 	choices.ReadCSVFile(data_path("ChoiceData.csv"));
 	// Initialize draw text
-	text.HB_FT_Init(data_path("PressStart2P-Regular.ttf").c_str(), 75);
+	text.HB_FT_Init(data_path("PressStart2P-Regular.ttf").c_str(), 50);
 	text_program = text.CreateTextShader();
 
 	// get pointer to camera for convenience:
@@ -148,10 +145,10 @@ void PlayMode::draw(glm::uvec2 const &drawable_size)
 	scene.draw(*camera);
 
 	{
-		text.Draw(text_program, base_line, 180.0f, 480.0f, drawable_size, glm::vec3(1.0f, 1.0f, 0.0f), 0.8f);
-		text.Draw(text_program, choice_lines[0], 180.0f, 320.0f, drawable_size, glm::vec3(1.0f, 0.0f, 0.0f), 0.6f);
-		text.Draw(text_program, choice_lines[1], 180.0f, 200.0f, drawable_size, glm::vec3(0.0f, 0.0f, 1.0f), 0.6f);
-		text.Draw(text_program, choice_lines[2], 180.0f, 100.0f, drawable_size, glm::vec3(0.0f, 0.0f, 1.0f), 0.6f);
+		text.Draw(text_program, base_line, 180.0f, 480.0f, drawable_size, glm::vec3(1.0f, 1.0f, 1.0f), 0.4f);
+		text.Draw(text_program, choice_lines[0], 180.0f, 250.0f, drawable_size, glm::vec3(1.0f, 1.0f, 0.3f), 0.4f);
+		text.Draw(text_program, choice_lines[1], 180.0f, 210.0f, drawable_size, glm::vec3(1.0f, 1.0f, 0.3f), 0.4f);
+		text.Draw(text_program, choice_lines[2], 180.0f, 170.0f, drawable_size, glm::vec3(1.0f, 1.0f, 0.3f), 0.4f);
 	}
 
 	GL_ERRORS();
