@@ -149,9 +149,9 @@ void PlayMode::draw(glm::uvec2 const &drawable_size)
 
 	{
 		text.Draw(text_program, base_line, 180.0f, 480.0f, drawable_size, glm::vec3(1.0f, 1.0f, 0.0f), 0.8f);
-		text.Draw(text_program, choice_lines[0], 180.0f, 320.0f, drawable_size, glm::vec3(1.0f, 0.0f, 0.0f));
-		text.Draw(text_program, choice_lines[1], 180.0f, 200.0f, drawable_size, glm::vec3(0.0f, 0.0f, 1.0f));
-		text.Draw(text_program, choice_lines[2], 180.0f, 100.0f, drawable_size, glm::vec3(0.0f, 0.0f, 1.0f));
+		text.Draw(text_program, choice_lines[0], 180.0f, 320.0f, drawable_size, glm::vec3(1.0f, 0.0f, 0.0f), 0.6f);
+		text.Draw(text_program, choice_lines[1], 180.0f, 200.0f, drawable_size, glm::vec3(0.0f, 0.0f, 1.0f), 0.6f);
+		text.Draw(text_program, choice_lines[2], 180.0f, 100.0f, drawable_size, glm::vec3(0.0f, 0.0f, 1.0f), 0.6f);
 	}
 
 	GL_ERRORS();
@@ -183,7 +183,7 @@ void PlayMode::show_dialogue()
 					if (i < choices.GetChoice(line_index).choiceCount)
 					{
 						if (choices.GetChoice(line_index).choiceCount > i)
-							choice_lines[i] = choices.GetChoice(line_index).potentialChoice[i].context;
+							choice_lines[i] = std::to_string(i + 1) + ": " + choices.GetChoice(line_index).potentialChoice[i].context;
 					}
 					else
 					{
@@ -228,13 +228,13 @@ void PlayMode::show_dialogue()
 				choice1_downcount++;
 				choiceNum = 0;
 			}
-			if (choice2.pressed && choice2_downcount == 0)
+			if (choice2.pressed && choice2_downcount == 0 && choices.GetChoice(line_index).choiceCount > 1)
 			{
 				choice2_downcount++;
 				choiceNum = 1;
 			}
 
-			if (choice3.pressed && choice3_downcount == 0)
+			if (choice3.pressed && choice3_downcount == 0 && choices.GetChoice(line_index).choiceCount > 2)
 			{
 				choice3_downcount++;
 				choiceNum = 2;
