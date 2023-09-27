@@ -2,6 +2,8 @@
 
 #include<string>
 #include<vector>
+#include"Sound.hpp"
+#include "data_path.hpp"
 struct Choice
 {
     Choice(std::string input);
@@ -24,6 +26,8 @@ struct Choice
     int EventID;
     int type;//=1=2
     int choiceCount;
+    std::string dataPath;
+    Sound::Sample*  voice;
     choiceData baseChoice;
     std::vector<choiceData> potentialChoice;
 
