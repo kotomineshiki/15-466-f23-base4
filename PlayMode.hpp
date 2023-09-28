@@ -22,8 +22,6 @@ struct PlayMode : Mode
 	virtual void update(float elapsed) override;
 	virtual void draw(glm::uvec2 const &drawable_size) override;
 	void show_dialogue();
-	void change_san(int add_value);
-	int dice(int maxnum);
 	//----- game state -----
 
 	// input tracking:
@@ -48,8 +46,6 @@ struct PlayMode : Mode
 	int choice1_downcount = 0;
 	int choice2_downcount = 0;
 	int choice3_downcount = 0;
-
-	int san = 10;
 
 	ChoiceTable choices;
 
