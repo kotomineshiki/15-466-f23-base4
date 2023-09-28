@@ -17,6 +17,11 @@ struct Choice
             choiceEffect=0;
         }
         choiceData(std::string inputstring, int input1,int input2){
+            for(int i=0;i<inputstring.size();++i){
+                if(inputstring[i]=='#'){
+                    inputstring[i]==',';
+                }
+            }
             context=inputstring;
             choiceNext=input1;
             choiceEffect=input2;
