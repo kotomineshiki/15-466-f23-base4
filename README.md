@@ -14,7 +14,8 @@ Screen Shot:
 
 How To Play:
 
-(TODO: describe the controls and (if needed) goals/strategy.)
+- Next: Space
+- Choice: 1/2/3
 
 Sources: [PressStart2P-Regular.ttf](https://fonts.google.com/specimen/Press+Start+2P)
 
