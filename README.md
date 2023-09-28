@@ -2,7 +2,7 @@
 
 Author: Yue Wang, Ziqi Ye, Yiqu Zhu
 
-Design: (TODO: In two sentences or fewer, describe what is new and interesting about your game.)
+Design: A choice-based word detective game. The game is accompanied by voiceovers, making you more immersed.
 
 Text Drawing: We rendered all 128 ASCII code points to glyph textures during initialization, then read each char in the text, and choose the right glyph bitmaps to render on two triangles(a rectangle) in runtime.
 
