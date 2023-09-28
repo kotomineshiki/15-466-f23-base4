@@ -8,7 +8,7 @@
 7,2,3,TSF\ID7.wav,You enjoyed the food at the party. You choose:,0,0,Enjoy party alone,10,0,Look at Mary,8,0,Look at Sam,9,0
 8,1,0,TSF\ID8.wav,Mary kept looking around.,7,0, ,0,0, ,0,0, ,0,0
 9,1,0,TSF\ID9.wav,You found out that Sam disappeared.,7,0, ,0,, ,0,0, ,0,0
-10,2,3,TSF\ID10.wav,There was a sudden power outage# and when the lights were turned on again# the dinner host discovered that his gemstone necklace was missing. You choose:,0,0,Go upstairs,14,0,Ask Mary,11,0,Search on the floor,12,0
+10,2,3,TSF\ID10.wav,There was a sudden power outage# and when the lights were turned on again# the dinner host discovered that his gemstone necklace was missing. You choose:,0,0,Go upstairs,14,0,Ask Mary,11,0,Search on the floor,13,0
 11,2,2,TSF\ID11.wav,Mary said she was looking for someone.,0,0,Keep asking,12,0,Leave,10,0, ,0,0
 12,1,0,TSF\ID12.wav,Mary said she was looking for her companion James# who is a man wearing glasses.,10,0, ,0,0, ,0,0, ,0,0
 13,1,0,TSF\ID13.wav,You find a pair of glasses on the floor.,10,0, ,0,0, ,0,0, ,0,0
