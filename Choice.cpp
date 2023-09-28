@@ -30,20 +30,14 @@ Choice::Choice(std::string input){
     }
 
     if(type==2){
-        choiceData potential1(splitted[7],atoi(splitted[8].c_str()),atoi(splitted[9].c_str()));
-        choiceData potential2(splitted[10],atoi(splitted[11].c_str()),atoi(splitted[12].c_str()));
-        potentialChoice.push_back(potential1);
-        potentialChoice.push_back(potential2);
+        for(int i=0;i<choiceCount;++i){
+            choiceData potential1(splitted[3*i+7],atoi(splitted[3*i+8].c_str()),atoi(splitted[3*i+9].c_str()));
+            potentialChoice.push_back(potential1);
+        }
+
+
     }
-    if(type==3){
-        choiceData potential1(splitted[7],atoi(splitted[8].c_str()),atoi(splitted[9].c_str()));
-        choiceData potential2(splitted[10],atoi(splitted[11].c_str()),atoi(splitted[12].c_str()));
-        choiceData potential3(splitted[13],atoi(splitted[14].c_str()),atoi(splitted[15].c_str()));
-        potentialChoice.push_back(potential1);
-        potentialChoice.push_back(potential2);
-        potentialChoice.push_back(potential3);
-    }
- //   std::cout<<EventID<<type<<choiceCount<<baseChoice.context<<std::endl;
+
 }
 
 void Choice::TestChoice(){
