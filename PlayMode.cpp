@@ -160,6 +160,7 @@ void PlayMode::draw(glm::uvec2 const &drawable_size)
 		text.Draw(text_program, choice_lines[0], 100.0f, 250.0f, drawable_size, glm::vec3(1.0f, 1.0f, 0.3f), 0.4f);
 		text.Draw(text_program, choice_lines[1], 100.0f, 210.0f, drawable_size, glm::vec3(1.0f, 1.0f, 0.3f), 0.4f);
 		text.Draw(text_program, choice_lines[2], 100.0f, 170.0f, drawable_size, glm::vec3(1.0f, 1.0f, 0.3f), 0.4f);
+		text.Draw(text_program, "Next - Space; Choices - 1/2/3", 250.0f, 0.0f, drawable_size, glm::vec3(0.4f, 0.4f, 0.4f), 0.4f);
 	}
 
 	GL_ERRORS();
@@ -272,15 +273,4 @@ void PlayMode::show_dialogue()
 			}
 		}
 	}
-}
-
-void PlayMode::change_san(int add_value)
-{
-	san += add_value;
-}
-
-int PlayMode::dice(int maxnum)
-{
-	int random = abs((rand() % (maxnum + 1)));
-	return random;
 }
