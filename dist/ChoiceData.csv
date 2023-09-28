@@ -16,10 +16,10 @@
 15,1,0,TSF\ID15.wav,I'm looking for glasses# don't bother me.,14,0, ,0,, ,0,0, ,0,0
 16,2,2,TSF\ID16.wav,Sam said the necklace was stolen.,0,0,Accuse him,17,0,Keep asking,19,0,Leave,14,0
 17,1,0,TSF\ID17.wav,Sam was very angry and said he was not the thief and you guys haven't found out the truth yet.,18,0, ,0,0, ,,0, ,,0
-18,1,0,,Bad end,,0, ,0,0, ,0,0, ,0,0
+18,1,0,,Bad end,,0, Restart,1,0, ,0,0, ,0,0
 19,1,0,TSF\ID19.wav,Sam went on to say that he saw a man wearing glasses steal the necklace.,20,0, ,0,0, ,,0, ,,0
 20,2,3,TSF\ID14.wav,You were at the second floor and saw a person looking around# and also Sam.,0,0,Go downstairs,10,0,Ask the looking around person,21,0,Ask Sam,16,0
 21,2,2,TSF\ID15.wav,I'm looking for glasses# don't bother me.,0,0,Accuse him,22,,Give him glasses,24,0,Leave,20,0
-22,1,0,TSF\ID20.wav,Congratulations! You find the real thief!,,,,,,,,,,,
-23,1,0,,Good end,,,,,,,,,,,
+22,1,0,TSF\ID20.wav,Congratulations! You find the real thief!,23,,,,,,,,,,
+23,1,0,,Good end,,,Restart,1,,,,,,,
 24,1,0,TSF\ID21.wav,You failed to find the thief# Mary and James run away and have a happy life!,18,,,,,,,,,,
