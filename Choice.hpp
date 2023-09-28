@@ -19,7 +19,7 @@ struct Choice
         choiceData(std::string inputstring, int input1,int input2){
             for(int i=0;i<inputstring.size();++i){
                 if(inputstring[i]=='#'){
-                    inputstring[i]==',';
+                    inputstring[i]=',';
                 }
             }
             context=inputstring;
