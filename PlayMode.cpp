@@ -163,6 +163,10 @@ void PlayMode::show_dialogue()
 			//  type:1-single line
 
 			base_line = choices.GetChoice(line_index).baseChoice.context;
+			if (choices.GetChoice(line_index).dataPath.length() > 1 && voiceover.use_count() < 2)
+			{
+				voiceover = Sound::play_3D(*choices.GetChoice(line_index).voice, 1.0f, glm::vec3(0, 0, 0), 10.0f);
+			}
 
 			if (choices.GetChoice(line_index).type == 1)
 			{
@@ -212,7 +216,7 @@ void PlayMode::show_dialogue()
 				}
 				else
 				{
-					std::cout << "no next line!!" << std::endl;
+					// std::cout << "no next line!!" << std::endl;
 				}
 			}
 		}
@@ -247,7 +251,7 @@ void PlayMode::show_dialogue()
 				}
 				else
 				{
-					std::cout << "no choose content!!" << std::endl;
+					// std::cout << "no choose content!!" << std::endl;
 				}
 			}
 		}

@@ -59,4 +59,7 @@ struct PlayMode : Mode
 	// text
 	DrawText text;
 	GLuint text_program;
+
+	// sound
+	std::shared_ptr<Sound::PlayingSample> voiceover;
 };
