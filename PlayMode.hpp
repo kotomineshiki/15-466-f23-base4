@@ -31,6 +31,7 @@ struct PlayMode : Mode
 	{
 		uint8_t downs = 0;
 		uint8_t pressed = 0;
+		bool released = false;
 	} space, choice1, choice2, choice3;
 
 	// local copy of the game scene (so code can change it during gameplay):
@@ -53,6 +54,8 @@ struct PlayMode : Mode
 	ChoiceTable choices;
 
 	int next_index = 1;
+	// timer
+	int timer = 10;
 	// camera:
 	Scene::Camera *camera = nullptr;
 

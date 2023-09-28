@@ -60,27 +60,28 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 	{
 		if (evt.key.keysym.sym == SDLK_SPACE)
 		{
-
+			space.released = false;
 			space.downs += 1;
 			space.pressed = true;
 			return true;
 		}
 		else if (evt.key.keysym.sym == SDLK_1)
 		{
+			choice1.released = false;
 			choice1.downs += 1;
 			choice1.pressed = true;
 			return true;
 		}
 		else if (evt.key.keysym.sym == SDLK_2)
 		{
-
+			choice2.released = false;
 			choice2.downs += 1;
 			choice2.pressed = true;
 			return true;
 		}
 		else if (evt.key.keysym.sym == SDLK_3)
 		{
-
+			choice3.released = false;
 			choice3.downs += 1;
 			choice3.pressed = true;
 			return true;
@@ -90,24 +91,29 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 	{
 		if (evt.key.keysym.sym == SDLK_SPACE)
 		{
+			space.released = true;
+			space.released = true;
 			space.pressed = false;
 			space.downs = 0;
 			return true;
 		}
 		else if (evt.key.keysym.sym == SDLK_1)
 		{
+			choice1.released = true;
 			choice1.pressed = false;
 			choice1.downs = 0;
 			return true;
 		}
 		else if (evt.key.keysym.sym == SDLK_2)
 		{
+			choice2.released = true;
 			choice2.pressed = false;
 			choice2.downs = 0;
 			return true;
 		}
 		else if (evt.key.keysym.sym == SDLK_3)
 		{
+			choice3.released = true;
 			choice3.pressed = false;
 			choice3.downs = 0;
 			return true;
@@ -119,7 +125,12 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 void PlayMode::update(float elapsed)
 {
 	// show dialogue
+	// if (timer > 10)
+	// {
 	show_dialogue();
+	// 	timer = 0;
+	// }
+	// timer++;
 }
 
 void PlayMode::draw(glm::uvec2 const &drawable_size)
@@ -203,7 +214,7 @@ void PlayMode::show_dialogue()
 		}
 
 		// detect player input
-		if (space.pressed && space_downcount == 0)
+		if (space.released && space_downcount == 0)
 		{
 			if (choices.GetChoice(line_index).type == 1)
 			{
@@ -217,29 +228,33 @@ void PlayMode::show_dialogue()
 				}
 				else
 				{
-					// std::cout << "no next line!!" << std::endl;
+					std::cout << "no next line!!" << std::endl;
 				}
 			}
+			space.released = false;
 		}
 
 		if (choices.GetChoice(line_index).type == 2)
 		{
 			int choiceNum = -1;
-			if (choice1.pressed && choice1_downcount == 0)
+			if (choice1.released && choice1_downcount == 0)
 			{
 				choice1_downcount++;
 				choiceNum = 0;
+				choice1.released = false;
 			}
-			if (choice2.pressed && choice2_downcount == 0 && choices.GetChoice(line_index).choiceCount > 1)
+			if (choice2.released && choice2_downcount == 0 && choices.GetChoice(line_index).choiceCount > 1)
 			{
 				choice2_downcount++;
 				choiceNum = 1;
+				choice2.released = false;
 			}
 
-			if (choice3.pressed && choice3_downcount == 0 && choices.GetChoice(line_index).choiceCount > 2)
+			if (choice3.released && choice3_downcount == 0 && choices.GetChoice(line_index).choiceCount > 2)
 			{
 				choice3_downcount++;
 				choiceNum = 2;
+				choice3.released = false;
 			}
 
 			// show next line
