@@ -163,8 +163,9 @@ void PlayMode::show_dialogue()
 			//  type:1-single line
 
 			base_line = choices.GetChoice(line_index).baseChoice.context;
-			if (choices.GetChoice(line_index).dataPath.length() > 1 && voiceover.use_count() < 2)
+			if (choices.GetChoice(line_index).dataPath.length() > 1)
 			{
+				Sound::stop_all_samples();
 				voiceover = Sound::play_3D(*choices.GetChoice(line_index).voice, 1.0f, glm::vec3(0, 0, 0), 10.0f);
 			}
 
