@@ -1,4 +1,4 @@
-# (TODO: your game's title)
+# Pearson's Bizarre Adventure
 
 Author: Yue Wang, Ziqi Ye, Yiqu Zhu
 
