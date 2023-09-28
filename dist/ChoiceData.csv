@@ -1,35 +1,25 @@
-﻿event id,type,choice count,dataPath,context,context next,context effect,choice1,choice 1 next,choice1 effect,choice 2,choice 2 next,choice 2 effect
-1,1,0,TSF\ID1.wav,You are Detective Pearson.  ,2,0,,,,,,
-2,1,0,TSF\ID2.wav,You are invited to a dinner party hosted by a rich man. ,,0,choice1,3,,choice2,4,
-3,1,0,TSF\ID3.wav,The guests gather in the hall and wait for the dinner to start.,5,0,,,,,,
-4,1,0,TSF\ID4.wav,Mary tould you that Sam is not a good person and he is going to steal things tonight #so you should be prepared.,5,,,,,,,
-5,1,0,TSF\ID5.wav,Sam says someone is going to steal tonight# but it's not him.,,,,,,,,
-6,1,0,TSF\ID6.wav,The dinner party has started and everyone seems to be enjoying it very much.,,,,,,,,
-7,1,0,TSF\ID7.wav,You enjoyed the food at the party.,,,,,,,,
-8,1,0,TSF\ID8.wav,Mary kept looking around.,,,,,,,,
-9,1,0,TSF\ID9.wav,You found out that Sam disappeared.,,,,,,,,
-10,1,0,TSF\ID10.wav,There was a sudden power outage# and when the lights were turned on again# the dinner host discovered that his gemstone necklace was missing.,,,,,,,,
-11,1,0,TSF\ID11.wav,Mary said she was looking for someone.,,,,,,,,
-12,1,0,TSF\ID12.wav,Mary said she was looking for her companion James# who is a man wearing glasses.,,,,,,,,
-13,1,0,TSF\ID13.wav,You find a pair of glasses on the floor.,,,,,,,,
-14,1,0,TSF\ID14.wav,You went up to the second floor and saw a person looking around# and also Sam.,,,,,,,,
-15,1,0,TSF\ID15.wav,I'm looking for glasses# don't bother me.,,,,,,,,
-16,1,0,TSF\ID16.wav,Sam said the necklace was stolen.,,,,,,,,
-17,1,0,TSF\ID17.wav,Sam was very angry and said he was not the murderer and you guys haven't found out the truth yet.,,,,,,,,
-18,1,0,,Bad end,,,,,,,,
-19,1,0,TSF\ID19.wav,Sam went on to say that he saw a man wearing glasses steal the necklace.,,,,,,,,
-20,1,0,TSF\ID20.wav,Congratulations! You find the real thief!,,,,,,,,
-21,1,0,TSF\ID21.wav,You failed to find the thief# Mary and James run away and have a happy life!,,,,,,,,
-22,1,0,,,,,,,,,,
-23,1,0,,,,,,,,,,
-24,1,0,,,,,,,,,,
-25,1,0,,,,,,,,,,
-26,1,0,,,,,,,,,,
-27,1,0,,,,,,,,,,
-28,1,0,,,,,,,,,,
-29,1,0,,,,,,,,,,
-30,1,0,,,,,,,,,,
-31,1,0,,,,,,,,,,
-32,1,0,,,,,,,,,,
-33,1,0,,,,,,,,,,
-34,1,0,,,,,,,,,,
+﻿event id,type,choice count,dataPath,context,context next,context effect,choice1,choice 1 next,choice1 effect,choice 2,choice 2 next,choice 2 effect,choice 3,choice 3 next,choice 3 effect
+1,1,0,TSF\ID1.wav,You are Detective Pearson.  ,2,0,,0,0, ,0,0, ,0,0
+2,1,0,TSF\ID2.wav,You are invited to a dinner party hosted by a rich man. ,3,0,,0,0, ,0,0, ,0,0
+3,2,2,TSF\ID3.wav,The guests gather in the hall and wait for the dinner to start. You choose:,0,0,Talk to Mary,4,,Talk to Sam,5,0, ,0,0
+4,1,0,TSF\ID4.wav,Mary tould you that Sam is not a good person and he is going to steal things tonight #so you should be prepared.,6,0,.,0,0,0,0,0, ,0,0
+5,1,0,TSF\ID5.wav,Sam says someone is going to steal tonight# but it's not him.,6,0,.,0,0,0,0,0, ,0,0
+6,1,0,TSF\ID6.wav,The dinner party has started and everyone seems to be enjoying it very much.,7,0,.,0,0,0,0,0, ,0,0
+7,2,3,TSF\ID7.wav,You enjoyed the food at the party. You choose:,0,0,Enjoy party alone,10,0,Look at Mary,8,0,Look at Sam,9,0
+8,1,0,TSF\ID8.wav,Mary kept looking around.,7,0, ,0,0, ,0,0, ,0,0
+9,1,0,TSF\ID9.wav,You found out that Sam disappeared.,7,0, ,0,, ,0,0, ,0,0
+10,2,3,TSF\ID10.wav,There was a sudden power outage# and when the lights were turned on again# the dinner host discovered that his gemstone necklace was missing. You choose:,0,0,Go upstairs,14,0,Ask Mary,11,0,Search on the floor,12,0
+11,2,2,TSF\ID11.wav,Mary said she was looking for someone.,0,0,Keep asking,12,0,Leave,10,0, ,0,0
+12,1,0,TSF\ID12.wav,Mary said she was looking for her companion James# who is a man wearing glasses.,10,0, ,0,0, ,0,0, ,0,0
+13,1,0,TSF\ID13.wav,You find a pair of glasses on the floor.,10,0, ,0,0, ,0,0, ,0,0
+14,2,3,TSF\ID14.wav,You went up to the second floor and saw a person looking around# and also Sam.,0,0,Go downstairs,10,0,Ask the looking around person,15,0,Ask Sam,16,0
+15,1,0,TSF\ID15.wav,I'm looking for glasses# don't bother me.,14,0, ,0,, ,0,0, ,0,0
+16,2,2,TSF\ID16.wav,Sam said the necklace was stolen.,0,0,Accuse him,17,0,Keep asking,19,0,Leave,14,0
+17,1,0,TSF\ID17.wav,Sam was very angry and said he was not the murderer and you guys haven't found out the truth yet.,18,0, ,0,0, ,,0, ,,0
+18,1,0,,Bad end,,0, ,0,0, ,0,0, ,0,0
+19,1,0,TSF\ID19.wav,Sam went on to say that he saw a man wearing glasses steal the necklace.,20,0, ,0,0, ,,0, ,,0
+20,2,3,,You were at the second floor and saw a person looking around# and also Sam.,0,0,Go downstairs,10,0,Ask the looking around person,15,0,Ask Sam,16,0
+21,2,2,,I'm looking for glasses# don't bother me.,14,0,Accuse him,22,,Give him glasses,23,0,Leave,20,0
+22,1,0,TSF\ID20.wav,Congratulations! You find the real thief!,,,,,,,,,,,
+23,1,0,,Good end,,,,,,,,,,,
+24,1,0,TSF\ID21.wav,You failed to find the thief# Mary and James run away and have a happy life!,,,,,,,,,,,
