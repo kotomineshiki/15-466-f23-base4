@@ -12,41 +12,102 @@
 
 #include <random>
 
-GLuint hexapod_meshes_for_lit_color_texture_program = 0;
-Load<MeshBuffer> hexapod_meshes(LoadTagDefault, []() -> MeshBuffer const *
-								{
-	MeshBuffer const *ret = new MeshBuffer(data_path("void.pnct"));
-	hexapod_meshes_for_lit_color_texture_program = ret->make_vao_for_program(lit_color_texture_program->program);
+GLuint meshes_for_lit_color_texture_program = 0;
+Load<MeshBuffer> meshes(LoadTagDefault, []() -> MeshBuffer const *
+						{
+	MeshBuffer const *ret = new MeshBuffer(data_path("cube.pnct"));
+	meshes_for_lit_color_texture_program = ret->make_vao_for_program(lit_color_texture_program->program);
 	return ret; });
 
 Load<Scene> hexapod_scene(LoadTagDefault, []() -> Scene const *
-						  { return new Scene(data_path("void.scene"), [&](Scene &scene, Scene::Transform *transform, std::string const &mesh_name)
-											 {
-												 Mesh const &mesh = hexapod_meshes->lookup(mesh_name);
+						  { return new Scene(
+								data_path("cube.scene"), [&](Scene &scene, Scene::Transform *transform, std::string const &mesh_name)
+								{
+									Mesh const mesh = meshes->lookup(mesh_name);
 
-												 scene.drawables.emplace_back(transform);
-												 Scene::Drawable &drawable = scene.drawables.back();
+									scene.drawables.emplace_back(transform);
+									Scene::Drawable &drawable = scene.drawables.back();
+									drawable.pipeline = lit_color_texture_program_pipeline;
+									drawable.pipeline.type = mesh.type;
+									drawable.pipeline.start = mesh.start;
+									drawable.pipeline.count = mesh.count;
 
-												 drawable.pipeline = lit_color_texture_program_pipeline;
+									drawable.pipeline.vao = meshes_for_lit_color_texture_program; }); });
 
-												 drawable.pipeline.vao = hexapod_meshes_for_lit_color_texture_program;
-												 drawable.pipeline.type = mesh.type;
-												 drawable.pipeline.start = mesh.start;
-												 drawable.pipeline.count = mesh.count; }); });
+Load<Sound::Sample> dusty_floor_sample(LoadTagDefault, []() -> Sound::Sample const *
+									   { return new Sound::Sample(data_path("dusty-floor.opus")); });
 
 PlayMode::PlayMode() : scene(*hexapod_scene)
 {
-	// Choice t;
-	// t.TestChoice();
-	choices.ReadCSVFile(data_path("ChoiceData.csv"));
-	// Initialize draw text
-	text.HB_FT_Init(data_path("PressStart2P-Regular.ttf").c_str(), 50);
-	text_program = text.CreateTextShader();
+	Platform newPlatform1;
+	newPlatform1.pos = glm::vec3{-1.2f, 0, 2.0f};
+	newPlatform1.height = 1.0f;
+	newPlatform1.width = 1.5f;
+	platforms.emplace_back(newPlatform1);
+	Platform newPlatform2;
+	newPlatform2.pos = glm::vec3{2.8f, 0, 3.4f};
+	newPlatform2.height = 0.7f;
+	newPlatform2.width = 2.2f;
+	platforms.emplace_back(newPlatform2);
+	Platform newPlatform3;
+	newPlatform3.pos = glm::vec3{-2.9f, 0, 3.4f};
+	newPlatform3.height = 1.2f;
+	newPlatform3.width = 2.0f;
+	platforms.emplace_back(newPlatform3);
+
+	for (auto &transform : scene.transforms)
+	{
+		if (transform.name == "Player")
+		{
+			player = &transform;
+			start_point = player->position;
+			player_origin_scale = player->scale;
+		}
+
+		else if (transform.name == "Boss")
+		{
+			boss = &transform;
+		}
+
+		else if (transform.name.find("Bullet") != std::string::npos)
+		{
+			Bullet bullet;
+			bullet.index = bullet_index;
+			bullet.transform = &transform;
+			bullet.transform->scale = glm::vec3(0, 0, 0);
+			bullet.original_pos = bullet.transform->position;
+
+			bullets.emplace_back(bullet);
+
+			bullet_index++;
+		}
+		else if (transform.name == "BossHp")
+		{
+			boss_hp = &transform;
+		}
+		else if (transform.name == "PlayerHp")
+		{
+			player_hp = &transform;
+		}
+		else if (transform.name == "Component")
+		{
+			component = &transform;
+		}
+	}
+
+	for (auto &bullet : bullets)
+	{
+		bullet.player_pos = player->position;
+	}
 
 	// get pointer to camera for convenience:
 	if (scene.cameras.size() != 1)
 		throw std::runtime_error("Expecting scene to have exactly one camera, but it has " + std::to_string(scene.cameras.size()));
 	camera = &scene.cameras.front();
+
+	// start music loop playing:
+	//  (note: position will be over-ridden in update())
+	// leg_tip_loop = Sound::loop_3D(*dusty_floor_sample, 1.0f, get_leg_tip_position(), 10.0f);
 }
 
 PlayMode::~PlayMode()
@@ -58,79 +119,241 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 
 	if (evt.type == SDL_KEYDOWN)
 	{
-		if (evt.key.keysym.sym == SDLK_SPACE)
+		if (evt.key.keysym.sym == SDLK_ESCAPE)
 		{
-			space.released = false;
+			SDL_SetRelativeMouseMode(SDL_FALSE);
+			return true;
+		}
+		else if (evt.key.keysym.sym == SDLK_a)
+		{
+			keya.downs += 1;
+			keya.pressed = true;
+			return true;
+		}
+		else if (evt.key.keysym.sym == SDLK_d)
+		{
+			keyd.downs += 1;
+			keyd.pressed = true;
+			return true;
+		}
+		else if (evt.key.keysym.sym == SDLK_w)
+		{
+			keyw.downs += 1;
+			keyw.pressed = true;
+			return true;
+		}
+		else if (evt.key.keysym.sym == SDLK_s)
+		{
+			keys.downs += 1;
+			keys.pressed = true;
+			return true;
+		}
+		else if (evt.key.keysym.sym == SDLK_e)
+		{
+			keyatk.downs += 1;
+			keyatk.pressed = true;
+			return true;
+		}
+		else if (evt.key.keysym.sym == SDLK_SPACE)
+		{
 			space.downs += 1;
 			space.pressed = true;
-			return true;
-		}
-		else if (evt.key.keysym.sym == SDLK_1)
-		{
-			choice1.released = false;
-			choice1.downs += 1;
-			choice1.pressed = true;
-			return true;
-		}
-		else if (evt.key.keysym.sym == SDLK_2)
-		{
-			choice2.released = false;
-			choice2.downs += 1;
-			choice2.pressed = true;
-			return true;
-		}
-		else if (evt.key.keysym.sym == SDLK_3)
-		{
-			choice3.released = false;
-			choice3.downs += 1;
-			choice3.pressed = true;
 			return true;
 		}
 	}
 	else if (evt.type == SDL_KEYUP)
 	{
-		if (evt.key.keysym.sym == SDLK_SPACE)
+		if (evt.key.keysym.sym == SDLK_a)
 		{
-			space.released = true;
-			space.released = true;
+			keya.pressed = false;
+			return true;
+		}
+		else if (evt.key.keysym.sym == SDLK_d)
+		{
+			keyd.pressed = false;
+			return true;
+		}
+		else if (evt.key.keysym.sym == SDLK_w)
+		{
+			keyw.pressed = false;
+			return true;
+		}
+		else if (evt.key.keysym.sym == SDLK_s)
+		{
+			keys.pressed = false;
+			return true;
+		}
+		else if (evt.key.keysym.sym == SDLK_e)
+		{
+			keyatk.pressed = false;
+			attack = false;
+			return true;
+		}
+		else if (evt.key.keysym.sym == SDLK_SPACE)
+		{
 			space.pressed = false;
-			space.downs = 0;
-			return true;
-		}
-		else if (evt.key.keysym.sym == SDLK_1)
-		{
-			choice1.released = true;
-			choice1.pressed = false;
-			choice1.downs = 0;
-			return true;
-		}
-		else if (evt.key.keysym.sym == SDLK_2)
-		{
-			choice2.released = true;
-			choice2.pressed = false;
-			choice2.downs = 0;
-			return true;
-		}
-		else if (evt.key.keysym.sym == SDLK_3)
-		{
-			choice3.released = true;
-			choice3.pressed = false;
-			choice3.downs = 0;
 			return true;
 		}
 	}
+
 	return false;
 }
 
 void PlayMode::update(float elapsed)
 {
 	// show dialogue
-	// if (timer > 10)
-	// {
-	show_dialogue();
-	// 	timer = 0;
-	// }
-	// timer++;
+	// show_dialogue();
+
+	// player die
+	if (player_hp->scale.x <= 0.0001f)
+	{
+		player->scale = glm::vec3(0);
+	}
+
+	// boss die
+	if (boss_hp->scale.x <= 0.0001f)
+	{
+		boss->scale = glm::vec3(0);
+		put_away_bullet(current_bullet);
+	}
+	else
+	{
+
+		// boss status
+		switch (boss_status)
+		{
+		case Melee:
+
+			break;
+		case Shoot:
+
+			bullet_current_time += bullet_speed * elapsed;
+			current_bullet = *(bullets.begin() + bullet_current_index);
+			current_bullet.transform->scale = glm::vec3(0.15f);
+			current_bullet.transform->position.y = player->position.y;
+			current_bullet.transform->position = bullet_current_Pos(boss->position, current_bullet.player_pos, bullet_current_time);
+
+			one_bullet_timer++;
+			// std::cout << one_bullet_timer << std::endl;
+			// generate new one
+			if (current_bullet.transform->position.x < player->position.x + 0.4f && current_bullet.transform->position.x > player->position.x - 0.4f && current_bullet.transform->position.z < player->position.z + 0.4f && current_bullet.transform->position.z > player->position.z - 0.4f)
+			{
+				put_away_bullet(current_bullet);
+				hit_player();
+			}
+			if (one_bullet_timer > 300)
+			{
+				put_away_bullet(current_bullet);
+			}
+
+			break;
+		default:
+
+			break;
+		}
+	}
+	// player attack
+	if (keyatk.pressed && !attack && (component->make_local_to_world() * glm::vec4(component->position, 1.0f)).z < boss->position.z + 0.5f && (component->make_local_to_world() * glm::vec4(component->position, 1.0f)).z > boss->position.z && ((face_right && (component->make_local_to_world() * glm::vec4(component->position, 1.0f)).x < boss->position.x + 0.8f && (component->make_local_to_world() * glm::vec4(component->position, 1.0f)).x > boss->position.x) || (!face_right && (component->make_local_to_world() * glm::vec4(component->position, 1.0f)).x < boss->position.x && (component->make_local_to_world() * glm::vec4(component->position, 1.0f)).x > boss->position.x - 0.8f)))
+	{
+		attack = true;
+		hit_boss();
+	}
+	// move camera:
+	{
+		// combine inputs into a move:
+		constexpr float PlayerSpeed = 2.0f;
+		// move left and right
+		float move = 0.0f;
+		if (keya.pressed && !keyd.pressed)
+		{
+			player->scale.x = -player_origin_scale.x;
+			face_right = false;
+			move = -1.0f;
+		}
+
+		if (!keya.pressed && keyd.pressed)
+		{
+			move = 1.0f;
+			player->scale.x = player_origin_scale.x;
+			face_right = true;
+		}
+
+		if (space.pressed)
+		{
+			if (!first_jump)
+			{
+				jump_signal = false;
+				first_jump = true;
+				jump_velocity = 3.0f;
+			}
+			else if (first_jump && !second_jump && jump_signal)
+			{
+				jump_signal = false;
+				second_jump = true;
+				jump_velocity = 3.0f;
+			}
+			else
+			{
+				// do nothing
+			}
+		}
+
+		if (!space.pressed)
+		{
+			jump_signal = true;
+		}
+
+		float gravity = -4.0f;
+
+		// if (down.pressed && !up.pressed)
+		// 	move.y = -1.0f;
+		// if (!down.pressed && up.pressed)
+		// 	move.y = 1.0f;
+
+		// make it so that moving diagonally doesn't go faster:
+		float hori_move = move * PlayerSpeed * elapsed;
+
+		jump_velocity += gravity * elapsed;
+		float vert_move = jump_velocity * elapsed;
+
+		// std::cout << first_jump << ", " << second_jump << ", " << jump_interval << "\n";
+		// std::cout << jump_velocity << "\n";
+
+		glm::mat4x3 frame = camera->transform->make_local_to_parent();
+		glm::vec3 frame_right = frame[0];
+		glm::vec3 frame_up = frame[1];
+		// glm::vec3 frame_forward = -frame[2];
+
+		if (on_platform())
+		{
+			first_jump = false;
+			second_jump = false;
+			jump_velocity = 0;
+			jump_signal = false;
+		}
+
+		if (hit_platform())
+		{
+			jump_velocity = 0;
+		}
+
+		glm::vec3 expected_position = player->position + hori_move * frame_right + vert_move * frame_up;
+		land_on_platform(expected_position);
+	}
+
+	{ // update listener to camera position:
+		glm::mat4x3 frame = camera->transform->make_local_to_parent();
+		glm::vec3 frame_right = frame[0];
+		glm::vec3 frame_at = frame[3];
+		Sound::listener.set_position_right(frame_at, frame_right, 1.0f / 60.0f);
+	}
+
+	// reset button press counters:
+	keya.downs = 0;
+	keyd.downs = 0;
+	keyw.downs = 0;
+	keys.downs = 0;
+	space.downs = 0;
 }
 
 void PlayMode::draw(glm::uvec2 const &drawable_size)
@@ -155,16 +378,158 @@ void PlayMode::draw(glm::uvec2 const &drawable_size)
 
 	scene.draw(*camera);
 
-	{
-		text.Draw(text_program, base_line, 100.0f, 480.0f, drawable_size, glm::vec3(1.0f, 1.0f, 1.0f), 0.4f);
-		text.Draw(text_program, choice_lines[0], 100.0f, 250.0f, drawable_size, glm::vec3(1.0f, 1.0f, 0.3f), 0.4f);
-		text.Draw(text_program, choice_lines[1], 100.0f, 210.0f, drawable_size, glm::vec3(1.0f, 1.0f, 0.3f), 0.4f);
-		text.Draw(text_program, choice_lines[2], 100.0f, 170.0f, drawable_size, glm::vec3(1.0f, 1.0f, 0.3f), 0.4f);
-		text.Draw(text_program, "Next - Space; Choices - 1/2/3", 250.0f, 0.0f, drawable_size, glm::vec3(0.4f, 0.4f, 0.4f), 0.4f);
-	}
+	// {
+	// 	text.Draw(text_program, base_line, 100.0f, 480.0f, drawable_size, glm::vec3(1.0f, 1.0f, 1.0f), 0.4f);
+	// 	text.Draw(text_program, choice_lines[0], 100.0f, 250.0f, drawable_size, glm::vec3(1.0f, 1.0f, 0.3f), 0.4f);
+	// 	text.Draw(text_program, choice_lines[1], 100.0f, 210.0f, drawable_size, glm::vec3(1.0f, 1.0f, 0.3f), 0.4f);
+	// 	text.Draw(text_program, choice_lines[2], 100.0f, 170.0f, drawable_size, glm::vec3(1.0f, 1.0f, 0.3f), 0.4f);
+	// 	text.Draw(text_program, "Next - Space; Choices - 1/2/3", 250.0f, 0.0f, drawable_size, glm::vec3(0.4f, 0.4f, 0.4f), 0.4f);
+	// }
 
 	GL_ERRORS();
 }
+
+glm::vec3 world_coords(Scene::Transform *block)
+{
+	auto world_block = block->make_local_to_world() * glm::vec4(block->position, 1.0f);
+	return world_block;
+}
+
+// glm::vec3 PlayMode::get_leg_tip_position()
+// {
+// 	// the vertex position here was read from the model in blender:
+// 	return lower_leg->make_local_to_world() * glm::vec4(-1.26137f, -11.861f, 0.0f, 1.0f);
+// }
+glm::vec3 PlayMode::bullet_current_Pos(glm::vec3 origin_Pos, glm::vec3 final_Pos, float time)
+{
+	glm::vec3 dir = glm::normalize(final_Pos - origin_Pos);
+	glm::vec3 current_Pos = origin_Pos + dir * time;
+	current_Pos.y = player->position.y;
+	return current_Pos;
+}
+
+void PlayMode::put_away_bullet(Bullet bullet)
+{
+	bullet.transform->position.y = 100;
+	bullet.transform->scale = glm::vec3(0);
+	one_bullet_timer = 0;
+	bullet_current_index++;
+	bullet_current_index %= 6;
+	bullet_current_time = 0;
+	(*(bullets.begin() + bullet_current_index)).player_pos = player->position;
+}
+
+void PlayMode::hit_player()
+{
+	if (player_hp->scale.x > 0.0001f)
+	{
+		player_hp->scale.x -= max_player_hp * 0.2f;
+	}
+}
+
+void PlayMode::hit_boss()
+{
+	if (boss_hp->scale.x > 0.0001f)
+	{
+		boss_hp->scale.x -= max_boss_hp * 0.1f;
+	}
+}
+
+bool PlayMode::on_platform()
+{
+	for (auto platform : platforms)
+	{
+		if (player->position.z == platform.pos.z + platform.height / 2)
+		{
+			return true;
+		}
+	}
+	return player->position.z == start_point.z;
+}
+
+bool PlayMode::hit_platform()
+{
+	for (auto platform : platforms)
+	{
+		if (player->position.z == platform.pos.z - platform.height / 2)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+void PlayMode::land_on_platform(glm::vec3 expected_position)
+{
+	std::cout << "\n"
+			  << player->position.x << " ," << player->position.y << " ," << player->position.z;
+	for (auto platform : platforms)
+	{
+		// std::cout << "\n" << outer_block -> name << "position z " << world_coords(outer_block).z ;
+		// std::cout << "\n" << outer_block -> name << "scale x" << outer_block->scale.x;
+		// std::cout << "\n" << expected_position.z << "z";
+		if (std::abs(expected_position.x - platform.pos.x) < platform.width / 2 &&
+			std::abs(expected_position.z - platform.pos.z) < platform.height / 2)
+		{
+			if (std::abs(player->position.x - platform.pos.x) < platform.width / 2 && expected_position.x > platform.pos.x)
+			{
+				if (expected_position.z > platform.pos.z)
+				{
+					if (std::abs(expected_position.z - platform.pos.z) < platform.height / 2)
+					{
+						expected_position.z = platform.pos.z + platform.height / 2;
+					}
+				}
+				if (expected_position.z < platform.pos.z)
+				{
+					if (std::abs(expected_position.z - platform.pos.z) < platform.height / 2)
+					{
+						expected_position.z = platform.pos.z - platform.height / 2;
+					}
+				}
+			}
+			if (std::abs(player->position.x - platform.pos.x) < platform.width / 2 && expected_position.x < platform.pos.x)
+			{
+				if (expected_position.z > platform.pos.z)
+				{
+					if (std::abs(expected_position.z - platform.pos.z) < platform.height / 2)
+					{
+						expected_position.z = platform.pos.z + platform.height / 2;
+					}
+				}
+				if (expected_position.z < platform.pos.z)
+				{
+					if (std::abs(expected_position.z - platform.pos.z) < platform.height / 2)
+					{
+						expected_position.z = platform.pos.z - platform.height / 2;
+					}
+				}
+			}
+			if (std::abs(player->position.x - platform.pos.x) >= platform.width / 2)
+			{
+				if (player->position.x < platform.pos.x)
+				{
+					expected_position.x = platform.pos.x - platform.width / 2;
+				}
+				if (player->position.x > platform.pos.x)
+				{
+					expected_position.x = platform.pos.x + platform.width / 2;
+				}
+			}
+		}
+	}
+	// camera->transform->position += move.x * frame_right + move.y * frame_forward;
+	// player->position += move.x * frame_right + move.y * frame_forward + move.z * frame_up;
+	camera->transform->position += expected_position - player->position;
+	player->position = expected_position;
+	if (expected_position.z < start_point.z)
+	{
+		expected_position.z = start_point.z;
+	}
+	camera->transform->position += expected_position - player->position;
+	player->position = expected_position;
+}
+/*
 void PlayMode::show_dialogue()
 {
 	if (line_index <= choices.choiceLibrary.size() && line_index >= 0)
@@ -274,3 +639,4 @@ void PlayMode::show_dialogue()
 		}
 	}
 }
+*/
