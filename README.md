@@ -1,12 +1,16 @@
-# (TODO: your game's title)
+# Pearson's Bizarre Adventure
 
-Author: Yue Wang, Ziqi Ye, Yiqu Zhu
+Author: Yue Wang, Ziqi Ye, Yiqu Zhu(yiquz)
 
-Design: A choice-based word detective game. The game is accompanied by voiceovers, making you more immersed.
+Design&Gameplay(Yue Wang): A choice-based word detective game. The game is accompanied by voiceovers, making you more immersed.
 
-Text Drawing: We rendered all 128 ASCII code points to glyph textures during initialization, then read each char in the text, and choose the right glyph bitmaps to render on two triangles(a rectangle) in runtime.
+Text Drawing(Ziqi Ye): We rendered all 128 ASCII code points to glyph textures during initialization, then read each char in the text, and choose the right glyph bitmaps to render on two triangles(a rectangle) in runtime.
 
-Choices: (TODO: how does the game store choices and narrative? How are they authored? Anything nifty you want to point out?)
+Choices(Yiqu Zhu):the game store choices and narrative in .csv format, It is basically a directed graph. The editing pipeline is in Excel which can authored and save csv file easily. 
+A tricky thing is that csv file use ',' as a parse signal, which we absolutely needed in a sentence. Instead of doing ""check and character stack which a real csv reader do, I ask the narrative designer to use '#' when writing, and I replace all '#' with',' when reading and parsing the csv file.
+It can also store wav file datapath
+![Screen Shot](CSV.png)
+
 
 Screen Shot:
 

@@ -5,7 +5,8 @@
 
 Scene::Drawable::Pipeline lit_color_texture_program_pipeline;
 
-Load< LitColorTextureProgram > lit_color_texture_program(LoadTagEarly, []() -> LitColorTextureProgram const * {
+Load<LitColorTextureProgram> lit_color_texture_program(LoadTagEarly, []() -> LitColorTextureProgram const *
+													   {
 	LitColorTextureProgram *ret = new LitColorTextureProgram();
 
 	//----- build the pipeline template -----
@@ -28,8 +29,12 @@ Load< LitColorTextureProgram > lit_color_texture_program(LoadTagEarly, []() -> L
 	glGenTextures(1, &tex);
 
 	glBindTexture(GL_TEXTURE_2D, tex);
-	std::vector< glm::u8vec4 > tex_data(1, glm::u8vec4(0xff));
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex_data.data());
+	//std::vector< glm::u8vec4 > tex_data(1, glm::u8vec4(0xff));
+	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex_data.data());
+	std::vector< glm::u8vec4 > tex_data;
+	glm::uvec2 size;
+	load_png("Tileset_demo.png", &size, &tex_data, OriginLocation::LowerLeftOrigin);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex_data.data());
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -40,13 +45,15 @@ Load< LitColorTextureProgram > lit_color_texture_program(LoadTagEarly, []() -> L
 	lit_color_texture_program_pipeline.textures[0].texture = tex;
 	lit_color_texture_program_pipeline.textures[0].target = GL_TEXTURE_2D;
 
-	return ret;
-});
+	return ret; });
 
-LitColorTextureProgram::LitColorTextureProgram() {
-	//Compile vertex and fragment shaders using the convenient 'gl_compile_program' helper function:
+LitColorTextureProgram::LitColorTextureProgram()
+{
+	// Compile vertex and fragment shaders using the convenient 'gl_compile_program' helper function:
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	program = gl_compile_program(
-		//vertex shader:
+		// vertex shader:
 		"#version 330\n"
 		"uniform mat4 OBJECT_TO_CLIP;\n"
 		"uniform mat4x3 OBJECT_TO_LIGHT;\n"
@@ -65,9 +72,8 @@ LitColorTextureProgram::LitColorTextureProgram() {
 		"	normal = NORMAL_TO_LIGHT * Normal;\n"
 		"	color = Color;\n"
 		"	texCoord = TexCoord;\n"
-		"}\n"
-	,
-		//fragment shader:
+		"}\n",
+		// fragment shader:
 		"#version 330\n"
 		"uniform sampler2D TEX;\n"
 		"uniform int LIGHT_TYPE;\n"
@@ -103,19 +109,19 @@ LitColorTextureProgram::LitColorTextureProgram() {
 		"		e = max(0.0, dot(n,-LIGHT_DIRECTION)) * LIGHT_ENERGY;\n"
 		"	}\n"
 		"	vec4 albedo = texture(TEX, texCoord) * color;\n"
-		"	fragColor = vec4(e*albedo.rgb, albedo.a);\n"
-		"}\n"
-	);
-	//As you can see above, adjacent strings in C/C++ are concatenated.
-	// this is very useful for writing long shader programs inline.
+		"	if (albedo.a < 0.25) discard; \n"
+		"	fragColor = vec4(e*2*albedo.rgb, albedo.a);\n"
+		"}\n");
+	// As you can see above, adjacent strings in C/C++ are concatenated.
+	//  this is very useful for writing long shader programs inline.
 
-	//look up the locations of vertex attributes:
+	// look up the locations of vertex attributes:
 	Position_vec4 = glGetAttribLocation(program, "Position");
 	Normal_vec3 = glGetAttribLocation(program, "Normal");
 	Color_vec4 = glGetAttribLocation(program, "Color");
 	TexCoord_vec2 = glGetAttribLocation(program, "TexCoord");
 
-	//look up the locations of uniforms:
+	// look up the locations of uniforms:
 	OBJECT_TO_CLIP_mat4 = glGetUniformLocation(program, "OBJECT_TO_CLIP");
 	OBJECT_TO_LIGHT_mat4x3 = glGetUniformLocation(program, "OBJECT_TO_LIGHT");
 	NORMAL_TO_LIGHT_mat3 = glGetUniformLocation(program, "NORMAL_TO_LIGHT");
@@ -126,19 +132,18 @@ LitColorTextureProgram::LitColorTextureProgram() {
 	LIGHT_ENERGY_vec3 = glGetUniformLocation(program, "LIGHT_ENERGY");
 	LIGHT_CUTOFF_float = glGetUniformLocation(program, "LIGHT_CUTOFF");
 
-
 	GLuint TEX_sampler2D = glGetUniformLocation(program, "TEX");
 
-	//set TEX to always refer to texture binding zero:
-	glUseProgram(program); //bind program -- glUniform* calls refer to this program now
+	// set TEX to always refer to texture binding zero:
+	glUseProgram(program); // bind program -- glUniform* calls refer to this program now
 
-	glUniform1i(TEX_sampler2D, 0); //set TEX to sample from GL_TEXTURE0
+	glUniform1i(TEX_sampler2D, 0); // set TEX to sample from GL_TEXTURE0
 
-	glUseProgram(0); //unbind program -- glUniform* calls refer to ??? now
+	glUseProgram(0); // unbind program -- glUniform* calls refer to ??? now
 }
 
-LitColorTextureProgram::~LitColorTextureProgram() {
+LitColorTextureProgram::~LitColorTextureProgram()
+{
 	glDeleteProgram(program);
 	program = 0;
 }
-
