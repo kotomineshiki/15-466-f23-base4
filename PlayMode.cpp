@@ -196,9 +196,7 @@ PlayMode::PlayMode() : scene(*hexapod_scene)
 		{
 			component = &transform;
 			component_scale = component->scale;
-			std::cout << "component min1" << component->min.z << std::endl;
-			component->scale = glm::vec4(0);
-			std::cout << "component min2" << component->min.z << std::endl;
+			component->scale = glm::vec4(0); // min unchanged
 		}
 		else if (transform.name == "BossAttack")
 		{
@@ -357,19 +355,20 @@ void PlayMode::update(float elapsed)
 	}
 
 	// hit cage
-	// if (hit_detect(component, cages.begin()->transform).overlapped)
-	// {
-	// attack = true;
-	// cages.begin()->isDestroied = true;
-	// cages.begin()->transform->scale = glm::vec4(0);
-	//}
-	// get_weapon && !cages.begin()->isDestroied && keyatk.pressed && !attack &&
-	if (get_weapon && !cages.begin()->isDestroied && keyatk.pressed && !attack && hit_detect(component, cages.begin()->transform).overlapped)
+	if (hit_detect(component, cages.begin()->transform).overlapped)
 	{
+		std::cout << "attack!!" << std::endl;
 		attack = true;
 		cages.begin()->isDestroied = true;
 		cages.begin()->transform->scale = glm::vec4(0);
 	}
+	// get_weapon && !cages.begin()->isDestroied && keyatk.pressed && !attack &&
+	// if (get_weapon && !cages.begin()->isDestroied && keyatk.pressed && !attack && hit_detect(component, cages.begin()->transform).overlapped)
+	// {
+	// 	attack = true;
+	// 	cages.begin()->isDestroied = true;
+	// 	cages.begin()->transform->scale = glm::vec4(0);
+	// }
 	//  get boots
 	if (!hasBoots && cages.begin()->isDestroied && (boots->make_local_to_world() * glm::vec4(boots->position, 1.0f)).x < player->position.x && (boots->make_local_to_world() * glm::vec4(boots->position, 1.0f)).x > player->position.x - 0.5f && (boots->make_local_to_world() * glm::vec4(boots->position, 1.0f)).z < player->position.z && (boots->make_local_to_world() * glm::vec4(boots->position, 1.0f)).z > player->position.z - 0.6f)
 	{
@@ -980,7 +979,7 @@ void PlayMode::land_on_platform(glm::vec3 expected_position)
 		player->position = expected_position;
 	}
 }
-
+/*
 PlayMode::HitObject PlayMode::hit_detect(Scene::Transform *obj, Scene::Transform *hit_obj)
 {
 
@@ -1009,4 +1008,91 @@ PlayMode::HitObject PlayMode::hit_detect(Scene::Transform *obj, Scene::Transform
 	}
 
 	return hit_detect_obj;
+}
+*/
+PlayMode::HitObject PlayMode::hit_detect(Scene::Transform *obj, Scene::Transform *hit_obj)
+{
+	float obj_max_x = (obj->make_local_to_world() * glm::vec4(obj->max, 1.0f)).x;
+	float obj_min_x = (obj->make_local_to_world() * glm::vec4(obj->min, 1.0f)).x;
+	float obj_max_z = (obj->make_local_to_world() * glm::vec4(obj->max, 1.0f)).z;
+	float obj_min_z = (obj->make_local_to_world() * glm::vec4(obj->min, 1.0f)).z;
+	float hit_obj_max_x = (hit_obj->make_local_to_world() * glm::vec4(hit_obj->max, 1.0f)).x;
+	float hit_obj_min_x = (hit_obj->make_local_to_world() * glm::vec4(hit_obj->min, 1.0f)).x;
+	float hit_obj_max_z = (hit_obj->make_local_to_world() * glm::vec4(hit_obj->max, 1.0f)).z;
+	float hit_obj_min_z = (hit_obj->make_local_to_world() * glm::vec4(hit_obj->min, 1.0f)).z;
+
+	std::cout << "obj max:" << obj_max_x << std::endl;
+	std::cout << "hit obj max:" << hit_obj_max_x << std::endl;
+
+	float minMax = 0;			   // the max value of the left object
+	float maxMin = 0;			   // the min value of the right object
+	if (obj_max_x < hit_obj_max_x) // obj on the left
+	{
+		minMax = obj_max_x;
+		maxMin = hit_obj_min_x;
+	}
+	else // obj on the right
+	{
+		minMax = hit_obj_max_x;
+		maxMin = obj_min_x;
+	}
+
+	bool TouchX = false;
+	// if (minMax > maxMin)
+	// {
+	// 	TouchX = true;
+	// }
+	// else
+	// {
+	// 	TouchX = false;
+	// }
+	if (maxMin - minMax < 0.26f)
+	{
+		TouchX = true;
+	}
+	else
+	{
+		TouchX = false;
+	}
+
+	std::cout << "X minmax:" << minMax << "; maxMin:" << maxMin << std::endl;
+
+	if (obj_max_z < hit_obj_max_z)
+	{
+		minMax = obj_max_z;
+		maxMin = hit_obj_min_z;
+	}
+	else
+	{
+		minMax = hit_obj_max_z;
+		maxMin = obj_min_z;
+	}
+
+	bool TouchZ = false;
+	// if (minMax > maxMin)
+	// {
+	// 	TouchZ = true;
+	// }
+	// else
+	// {
+	// 	TouchZ = false;
+	// }
+	if (maxMin - minMax < 0.26f)
+	{
+		TouchZ = true;
+	}
+	else
+	{
+		TouchZ = false;
+	}
+	std::cout << "Z minmax:" << minMax << "; maxMin:" << maxMin << std::endl;
+	std::cout << "TouchX:" << TouchX << "; TouchZ:" << TouchZ << std::endl;
+	PlayMode::HitObject hit_det_obj;
+	if (TouchX && TouchZ)
+	{
+		hit_det_obj.overlapped = true;
+		hit_det_obj.name = hit_obj->name;
+		std::cout << "hit!!" << std::endl;
+	}
+	return hit_det_obj;
 }
